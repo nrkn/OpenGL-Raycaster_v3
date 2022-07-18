@@ -1,4 +1,4 @@
-export const won=
+export const winScreen=
 [
 134,
 229,

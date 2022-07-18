@@ -1,4 +1,4 @@
-export const title =
+export const titleScreen =
 [
 237,
 249,

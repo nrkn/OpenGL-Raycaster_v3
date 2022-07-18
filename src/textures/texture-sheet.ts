@@ -1,4 +1,4 @@
-export const All_Textures =
+export const textureSheet =
 [
 48,
 25,

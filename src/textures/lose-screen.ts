@@ -1,4 +1,4 @@
-export const lost =
+export const loseScreen =
 [
 15,
 101,

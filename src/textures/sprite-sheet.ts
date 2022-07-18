@@ -1,4 +1,4 @@
-export const sprites =
+export const spriteSheet =
 [
 255,
 12,
