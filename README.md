@@ -1,6 +1,6 @@
 # typescript canvas raycaster
 
-You will `tsc` and `http-server` installed globally:
+You will need `tsc` and `http-server` installed globally:
 
 `npm install typescript -g && npm install http-server -g`
 
