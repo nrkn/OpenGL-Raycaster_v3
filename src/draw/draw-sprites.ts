@@ -52,7 +52,9 @@ export const drawSprites = () => {
           const green = spriteSheet[pixel + 1]
           const blue = spriteSheet[pixel + 2]
 
-          if (red !== 255 && green !== 0 && blue !== 255) // purple transparent
+          const isMagenta = red === 255 && green === 0 && blue === 255
+
+          if (!isMagenta)
           {
             //draw point             
             setColorBytes(red, green, blue)
