@@ -40,7 +40,7 @@ export const drawSprites = () => {
     let t_x_step = 31.5 / scale
     let t_y_step = 32.0 / scale
 
-    for (x = (sx - scale / 2) | 0; x < sx + scale / 2; x++) {
+    for (x = ((sx - scale / 2) | 0); x < sx + scale / 2; x++) {
       t_y = 31
 
       for (y = 0; y < scale; y++) {
@@ -57,7 +57,7 @@ export const drawSprites = () => {
           {
             //draw point             
             setColorBytes(red, green, blue)
-            drawPoint(x * cellSize, sy * cellSize - y * cellSize)            
+            drawPoint(x * cellSize, Math.floor( ( sy * cellSize - y * cellSize) / cellSize ) * cellSize )
           }
 
           t_y -= t_y_step

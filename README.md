@@ -10,6 +10,8 @@ Then:
 
 ## changes in this port
 
+### 1.0.1
+
 Currently trying to get all the magic numbers out of the code and into consts
 in preparation for modifying field of view, viewport size, texture size etc.
 
@@ -17,10 +19,16 @@ Also will be changing where we currently use JS objects instead of C structs so
 that they it uses array tuples, which are closer to C structs in terms of 
 runtime performance in a hot loop
 
+### 1.0.2
 
-```
- renderered point count 60671 pointSet size 58271 xSet size 120 ySet size 640
-```
+In this caster, with the old settings we drew 120 columns and 640 rows 
+
+This modifies the code to only draw 80 rows - it looks worse but is much faster
+and now because we no longer have a discrepency between width and height cells
+we can speed up further by blitting pixels in an ImageData directly instead of 
+using fillRect
+
+Still some magic numbers to fix so that we can start upscaling
 
 ## Ported from:
 

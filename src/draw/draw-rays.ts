@@ -192,20 +192,22 @@ export const drawRays = () => {
 
     if( drawWalls ){
       for (y = 0; y < lineH; y++ ) {
-        let pixel = ((ty | 0) * 32 + (tx | 0)) * 3 + (hmt * 32 * 32 * 3)
-        let red = textureSheet[pixel + 0] * shade
-        let green = textureSheet[pixel + 1] * shade
-        let blue = textureSheet[pixel + 2] * shade
-        
-        setColorBytes(red, green, blue)
-        drawPoint(r * cellSize, y + lineOff )
+        if( y % 8 === 0 ){
+          let pixel = ((ty | 0) * 32 + (tx | 0)) * 3 + (hmt * 32 * 32 * 3)
+          let red = textureSheet[pixel + 0] * shade
+          let green = textureSheet[pixel + 1] * shade
+          let blue = textureSheet[pixel + 2] * shade
+          
+          setColorBytes(red, green, blue)
+          drawPoint(r * cellSize, Math.floor((y + lineOff)/cellSize)*cellSize )  
+        }
   
         ty += ty_step
       }
     }    
 
     // draw floors and ceils
-    for (y = lineOff + lineH; y < viewHeight; y++ ) {
+    for (y = (((lineOff + lineH)/cellSize) | 0)* cellSize; y < viewHeight; y++ ) {
       const dy = y - (viewHeight / 2)
       const deg = degToRad(ra)
       const raFix = Math.cos(degToRad(wrapAngle(player.angle - ra)))
@@ -213,7 +215,7 @@ export const drawRays = () => {
       tx = player.x / 2 + Math.cos(deg) * 158 * 2 * 32 / dy / raFix
       ty = player.y / 2 - Math.sin(deg) * 158 * 2 * 32 / dy / raFix
 
-      if( drawFloors ){
+      if( y % 8 === 0 && drawFloors ){
         // floors
         const mp = mapFloors[((ty / 32) | 0) * mapX + ((tx / 32) | 0)] * 32 * 32
         const pixel = (((ty) & 31) * 32 + ((tx) & 31)) * 3 + mp * 3
@@ -225,7 +227,7 @@ export const drawRays = () => {
         drawPoint(r * cellSize, y )
       }
 
-      if( drawCeils ){
+      if( y % 8 === 0 && drawCeils ){
         // ceils
         const mp = mapCeils[((ty / 32) | 0) * mapX + ((tx / 32) | 0)] * 32 * 32
         const pixel = (((ty) & 31) * 32 + ((tx) & 31)) * 3 + mp * 3

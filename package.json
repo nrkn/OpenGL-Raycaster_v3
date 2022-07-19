@@ -1,6 +1,6 @@
 {
   "name": "@nrkn/typescript-canvas-raycaster_v3",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "3DSage's raycaster v3 ported to typescript",
   "main": "index.js",
   "scripts": {
