@@ -17,6 +17,11 @@ Also will be changing where we currently use JS objects instead of C structs so
 that they it uses array tuples, which are closer to C structs in terms of 
 runtime performance in a hot loop
 
+
+```
+ renderered point count 60671 pointSet size 58271 xSet size 120 ySet size 640
+```
+
 ## Ported from:
 
 ### [OpenGL-Raycaster_v3](https://github.com/3DSage/OpenGL-Raycaster_v3)

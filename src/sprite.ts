@@ -1,6 +1,6 @@
 import { Sprite } from './types.js'
 
-const sprites = () => [
+const createSprites = () => [
   //key 
   {
     type: 1, state: 1, map: 0, x: 1.5 * 64, y: 5 * 64, z: 20,  
@@ -19,13 +19,13 @@ const sprites = () => [
   }
 ]
 
-export const sp: Sprite[] = []
+export const sprites: Sprite[] = []
 
 export const initSprites = () => {
-  const s = sprites()
+  const s = createSprites()
 
   for( let i = 0; i < s.length; i++ ){
-    sp[ i ] = s[ i ]
+    sprites[ i ] = s[ i ]
   }
 }
 

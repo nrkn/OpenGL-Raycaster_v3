@@ -14,15 +14,16 @@ export const drawScreen = (v: number) => {
   if (v == 1) { T = titleScreen }
   if (v == 2) { T = winScreen }
   if (v == 3) { T = loseScreen }
-
+  
+  setPointSize(cellSize)
+  
   for (y = 0; y < fovH; y++) {
     for (x = 0; x < fov; x++) {
       let pixel = (y * fov + x) * 3
       let red = T[pixel + 0] * state.fade
       let green = T[pixel + 1] * state.fade
       let blue = T[pixel + 2] * state.fade
-
-      setPointSize(cellSize)
+      
       setColorBytes(red, green, blue)
       drawPoint(x * cellSize, y * cellSize)
     }

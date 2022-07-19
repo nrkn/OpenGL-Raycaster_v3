@@ -1,7 +1,7 @@
 import { fov, fovH, depth, cellSize } from '../const.js'
 import { player } from '../player.js'
 import { setPointSize, setColorBytes, drawPoint } from '../render.js'
-import { sp } from '../sprite.js'
+import { sprites } from '../sprite.js'
 import { spriteSheet } from '../textures/sprite-sheet.js'
 import { degToRad } from '../util.js'
 
@@ -9,11 +9,13 @@ export const drawSprites = () => {
   let x = 0
   let y = 0
 
-  for (let s = 0; s < 4; s++) {
+  setPointSize(cellSize)
+
+  for (let s = 0; s < sprites.length; s++) {
     // temp float variables
-    let sx = sp[s].x - player.x
-    let sy = sp[s].y - player.y
-    let sz = sp[s].z
+    let sx = sprites[s].x - player.x
+    let sy = sprites[s].y - player.y
+    let sz = sprites[s].z
 
     // rotate around origin
     let pCos = Math.cos(degToRad(player.angle))
@@ -42,10 +44,10 @@ export const drawSprites = () => {
       t_y = 31
 
       for (y = 0; y < scale; y++) {
-        if (sp[s].state === 1 && x > 0 && x < fov && b < depth[x]) {
+        if (sprites[s].state === 1 && x > 0 && x < fov && b < depth[x]) {
           const pixel = (
             ((t_y | 0) * 32 + (t_x | 0)) * 3 +
-            (sp[s].map * 32 * 32 * 3)
+            (sprites[s].map * 32 * 32 * 3)
           )
           const red = spriteSheet[pixel + 0]
           const green = spriteSheet[pixel + 1]
@@ -53,8 +55,7 @@ export const drawSprites = () => {
 
           if (red !== 255 && green !== 0 && blue !== 255) // purple transparent
           {
-            //draw point 
-            setPointSize(cellSize)
+            //draw point             
             setColorBytes(red, green, blue)
             drawPoint(x * cellSize, sy * cellSize - y * cellSize)            
           }

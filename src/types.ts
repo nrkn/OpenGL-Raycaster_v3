@@ -1,4 +1,7 @@
+export type Tuple2<T = number> = [T, T]
 export type Tuple3<T = number> = [T, T, T]
+export type Tuple4<T = number> = [T, T, T,T]
+export type Tuple5<T = number> = [T, T, T,T,T]
 
 export type ButtonKeys = {
   KeyW: number
