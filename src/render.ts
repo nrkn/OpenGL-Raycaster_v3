@@ -1,10 +1,10 @@
-import { viewWidth, viewHeight } from './const.js'
+import { canvasWidth, canvasHeight, cellSize } from './const.js'
 import { assrt } from './util.js'
 
 export const canvas = document.createElement('canvas')
 
-canvas.width = viewWidth
-canvas.height = viewHeight
+canvas.width = canvasWidth
+canvas.height = canvasHeight
 
 document.body.append(canvas)
 
@@ -28,14 +28,6 @@ const debugLog: [string, ...any][] = []
 
 //
 
-let pointSize = 0
-
-export const setPointSize = (p: number) => {
-  pointSize = p | 0
-
-  if (isDebugLog) debugLog.push(['setPointSize', p])
-}
-
 let lastR = 0
 let lastG = 0
 let lastB = 0
@@ -58,8 +50,8 @@ export const setColorBytes = (red: number, green: number, blue: number) => {
 export const setColorF = (red: number, green: number, blue: number) =>
   setColorBytes(red * 255, green * 255, blue * 255)
 
-export const drawPoint = (x: number, y: number, width = pointSize, height = pointSize) => {
-  ctx.fillRect(x | 0, y | 0, width, height )
+export const drawPoint = (x: number, y: number ) => {
+  ctx.fillRect(x | 0, y | 0, cellSize, cellSize )
 
   if (isDebugLog) debugLog.push(['drawPoint', x, y ])
 }

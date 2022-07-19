@@ -1,12 +1,13 @@
 import {
-  fov, mapX, mapY, mapS, viewHeight, viewCY, depth, cellSize
+  mapWidth, mapHeight, mapUnitSize, canvasHeight, canvasCY, depth, cellSize, 
+  viewWidth, maxDof, fovC, fov, texHeight, texWidth, shadeFloor
 } from '../const.js'
 
 import { mapWalls, mapFloors, mapCeils } from '../map.js'
 import { player } from '../player.js'
 
 import {
-  setColorF, setPointSize, setColorBytes, drawPoint
+  setColorF, setColorBytes, drawPoint
 } from '../render.js'
 
 import { textureSheet } from '../textures/texture-sheet.js'
@@ -20,7 +21,7 @@ const drawFloors = true
 const drawCeils = true
 
 export const drawRays = () => {
-  let r = 0
+  let col = 0
   let mx = 0
   let my = 0
   let mp = 0
@@ -31,20 +32,20 @@ export const drawRays = () => {
   let vy = 0
   let rx = 0
   let ry = 0
-  let ra = 0
+  let ray = 0
   let xo = 0
   let yo = 0
   let disV = 0
   let disH = 0
 
-  let raTan = 0
+  let rayTan = 0
+  let rayCos = 0
+  let raySin = 0
 
-  // ray set back 30 degrees
-  ra = wrapAngle(player.angle + 30)
+  // ray set back half of fov
+  ray = wrapAngle(player.angle + fovC)
 
-  setPointSize(cellSize)
-
-  for (r = 0; r < fov; r++) {
+  for (col = 0; col < viewWidth; col++) {
     // vertical and horizontal map texture number
     let vmt = 0
     let hmt = 0
@@ -54,38 +55,40 @@ export const drawRays = () => {
     side = 0
     disV = 100000
 
-    raTan = Math.tan(degToRad(ra))
+    rayTan = Math.tan(degToRad(ray))
+    rayCos = Math.cos(degToRad(ray))
+    raySin = Math.sin(degToRad(ray))
 
-    if (Math.cos(degToRad(ra)) > epsilonA) {
+    if (rayCos > epsilonA) {
       // looking left
-      rx = ((player.x >> 6) << 6) + 64
-      ry = (player.x - rx) * raTan + player.y
-      xo = 64
-      yo = -xo * raTan
-    } else if (Math.cos(degToRad(ra)) < epsilonA) {
+      rx = ((player.x >> 6) << 6) + mapUnitSize
+      ry = (player.x - rx) * rayTan + player.y
+      xo = mapUnitSize
+      yo = -xo * rayTan
+    } else if (rayCos < epsilonA) {
       // looking right
       rx = ((player.x >> 6) << 6) - epsilonW
-      ry = (player.x - rx) * raTan + player.y
-      xo = -64; yo = -xo * raTan
+      ry = (player.x - rx) * rayTan + player.y
+      xo = -mapUnitSize; yo = -xo * rayTan
     } else {
       // looking up or down. no hit  
       rx = player.x
       ry = player.y
-      dof = 8
+      dof = maxDof
     }
 
-    while (dof < 8) {
+    while (dof < maxDof) {
       mx = (rx) >> 6
       my = (ry) >> 6
-      mp = my * mapX + mx
+      mp = my * mapWidth + mx
 
-      if (mp > 0 && mp < mapX * mapY && mapWalls[mp] > 0) {
+      if (mp > 0 && mp < mapWidth * mapHeight && mapWalls[mp] > 0) {
         // hit         
         vmt = mapWalls[mp] - 1
-        dof = 8
+        dof = maxDof
         disV = (
-          Math.cos(degToRad(ra)) * (rx - player.x) -
-          Math.sin(degToRad(ra)) * (ry - player.y)
+          rayCos * (rx - player.x) -
+          Math.sin(degToRad(ray)) * (ry - player.y)
         )
       } else {
         // check next horizontal
@@ -100,39 +103,39 @@ export const drawRays = () => {
 
     // horizontal walls
     dof = 0; disH = 100000
-    raTan = 1.0 / raTan
+    rayTan = 1.0 / rayTan
 
-    if (Math.sin(degToRad(ra)) > epsilonA) {
+    if (raySin > epsilonA) {
       // looking up 
       ry = ((player.y >> 6) << 6) - epsilonW
-      rx = (player.y - ry) * raTan + player.x
-      yo = -64
-      xo = -yo * raTan
+      rx = (player.y - ry) * rayTan + player.x
+      yo = -mapUnitSize
+      xo = -yo * rayTan
     }
-    else if (Math.sin(degToRad(ra)) < -epsilonA) {
+    else if (raySin < -epsilonA) {
       // looking down
-      ry = ((player.y >> 6) << 6) + 64
-      rx = (player.y - ry) * raTan + player.x
-      yo = 64
-      xo = -yo * raTan
+      ry = ((player.y >> 6) << 6) + mapUnitSize
+      rx = (player.y - ry) * rayTan + player.x
+      yo = mapUnitSize
+      xo = -yo * rayTan
     } else {
       // looking straight left or right
       rx = player.x
       ry = player.y
-      dof = 8
+      dof = maxDof
     }
 
-    while (dof < 8) {
+    while (dof < maxDof) {
       mx = (rx) >> 6
       my = (ry) >> 6
-      mp = my * mapX + mx;
-      if (mp > 0 && mp < mapX * mapY && mapWalls[mp] > 0) {
+      mp = my * mapWidth + mx;
+      if (mp > 0 && mp < mapWidth * mapHeight && mapWalls[mp] > 0) {
         // hit         
         hmt = mapWalls[mp] - 1
-        dof = 8
+        dof = maxDof
         disH = (
-          Math.cos(degToRad(ra)) * (rx - player.x) -
-          Math.sin(degToRad(ra)) * (ry - player.y)
+          rayCos * (rx - player.x) -
+          raySin * (ry - player.y)
         )
       } else {
         // check next horizontal
@@ -154,52 +157,52 @@ export const drawRays = () => {
       setColorF(0, 0.6, 0)
     }
 
-    const ca = wrapAngle(player.angle - ra)
+    const ca = wrapAngle(player.angle - ray)
 
     disH = disH * Math.cos(degToRad(ca))
 
-    // fix fisheye 
-    let lineH = (mapS * viewHeight) / (disH)
-    const ty_step = 32 / lineH
+    // fix fisheye - only seems to work properly for 60 deg fov?
+    let lineH = (mapUnitSize * canvasHeight) / (disH)
+    const ty_step = texHeight / lineH
     let ty_off = 0
-    if (lineH > viewHeight) {
+    if (lineH > canvasHeight) {
       // line height and limit
-      ty_off = (lineH - viewHeight) / 2
-      lineH = viewHeight
+      ty_off = (lineH - canvasHeight) / 2
+      lineH = canvasHeight
     }
     
     // line offset
-    const lineOff = viewCY - (lineH >> 1)
+    const lineOff = canvasCY - (lineH >> 1)
 
     // save this line's depth
-    depth[r] = disH
+    depth[col] = disH
 
     // draw walls
     let y = 0
     let ty = ty_off * ty_step
     let tx = 0
     if (shade === 1) {
-      tx = (rx / 2) % 32
-      if (ra > 180) {
-        tx = 31 - tx
+      tx = (rx / 2) % texWidth
+      if (ray > 180) {
+        tx = texWidth - 1 - tx
       }
     } else {
-      tx = (ry / 2) % 32
-      if (ra > 90 && ra < 270) {
-        tx = 31 - tx
+      tx = (ry / 2) % texWidth
+      if (ray > 90 && ray < 270) {
+        tx = texWidth - 1 - tx
       }
     }
 
     if( drawWalls ){
       for (y = 0; y < lineH; y++ ) {
-        if( y % 8 === 0 ){
-          let pixel = ((ty | 0) * 32 + (tx | 0)) * 3 + (hmt * 32 * 32 * 3)
-          let red = textureSheet[pixel + 0] * shade
-          let green = textureSheet[pixel + 1] * shade
-          let blue = textureSheet[pixel + 2] * shade
+        if( y % cellSize === 0 ){
+          const pixel = ((ty | 0) * texWidth + (tx | 0)) * 3 + (hmt * texWidth * texHeight * 3)
+          const red = textureSheet[pixel + 0] * shade
+          const green = textureSheet[pixel + 1] * shade
+          const blue = textureSheet[pixel + 2] * shade
           
           setColorBytes(red, green, blue)
-          drawPoint(r * cellSize, Math.floor((y + lineOff)/cellSize)*cellSize )  
+          drawPoint(col * cellSize, Math.floor((y + lineOff)/cellSize)*cellSize )  
         }
   
         ty += ty_step
@@ -207,42 +210,45 @@ export const drawRays = () => {
     }    
 
     // draw floors and ceils
-    for (y = (((lineOff + lineH)/cellSize) | 0)* cellSize; y < viewHeight; y++ ) {
-      const dy = y - (viewHeight / 2)
-      const deg = degToRad(ra)
-      const raFix = Math.cos(degToRad(wrapAngle(player.angle - ra)))
+    for (y = (((lineOff + lineH)/cellSize) | 0)* cellSize; y < canvasHeight; y++ ) {
+      const dy = y - (canvasHeight / 2)
+      const deg = degToRad(ray)
+      const raFix = Math.cos(degToRad(wrapAngle(player.angle - ray)))
 
-      tx = player.x / 2 + Math.cos(deg) * 158 * 2 * 32 / dy / raFix
-      ty = player.y / 2 - Math.sin(deg) * 158 * 2 * 32 / dy / raFix
+      // todo: magic number 158 is something to do with tan and aspect ratio
+      // I'm not certain (cellSize / 4 ) is correct either
+      tx = player.x / 2 + Math.cos(deg) * 158 * ( cellSize / 4 ) * texWidth / dy / raFix
+      ty = player.y / 2 - Math.sin(deg) * 158 * ( cellSize / 4 ) * texHeight / dy / raFix
 
-      if( y % 8 === 0 && drawFloors ){
+      if( y % cellSize === 0 && drawFloors ){
         // floors
-        const mp = mapFloors[((ty / 32) | 0) * mapX + ((tx / 32) | 0)] * 32 * 32
-        const pixel = (((ty) & 31) * 32 + ((tx) & 31)) * 3 + mp * 3
-        const red = textureSheet[pixel + 0] * 0.7
-        const green = textureSheet[pixel + 1] * 0.7
-        const blue = textureSheet[pixel + 2] * 0.7
+        const mp = mapFloors[((ty / texHeight) | 0) * mapWidth + ((tx / texWidth) | 0)] * texWidth * texHeight
+        const pixel = (((ty) & (texWidth-1)) * texWidth + ((tx) & (texWidth-1))) * 3 + mp * 3
+        const red = textureSheet[pixel + 0] * shadeFloor
+        const green = textureSheet[pixel + 1] * shadeFloor
+        const blue = textureSheet[pixel + 2] * shadeFloor
 
         setColorBytes(red, green, blue)
-        drawPoint(r * cellSize, y )
+        drawPoint(col * cellSize, y )
       }
 
-      if( y % 8 === 0 && drawCeils ){
+      if( y % cellSize === 0 && drawCeils ){
         // ceils
-        const mp = mapCeils[((ty / 32) | 0) * mapX + ((tx / 32) | 0)] * 32 * 32
-        const pixel = (((ty) & 31) * 32 + ((tx) & 31)) * 3 + mp * 3
-        const red = textureSheet[pixel + 0]
-        const green = textureSheet[pixel + 1]
-        const blue = textureSheet[pixel + 2]
+        const mp = mapCeils[((ty / texHeight) | 0) * mapWidth + ((tx / texWidth) | 0)] * texWidth * texHeight
 
         if (mp > 0) {
+          const pixel = (((ty) & (texHeight-1)) * texWidth + ((tx) & (texWidth-1))) * 3 + mp * 3
+          const red = textureSheet[pixel + 0]
+          const green = textureSheet[pixel + 1]
+          const blue = textureSheet[pixel + 2]
+
           setColorBytes(red, green, blue)
-          drawPoint(r * cellSize, viewHeight - y )
+          drawPoint(col * cellSize, canvasHeight - y )
         }
       }
     }
 
-    //go to next ray
-    ra = wrapAngle(ra - 0.5)
+    //go to next ray - uh I think we just adjust so that viewWidth * second number === fov
+    ray = wrapAngle(ray - fov / viewWidth )
   }
 }

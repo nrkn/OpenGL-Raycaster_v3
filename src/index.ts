@@ -2,7 +2,7 @@
 //Full video: https://www.youtube.com/watch?v=w0Bm4IA-Ii8
 //WADS to move player, E open door after picking up the key
 
-import { viewHeight, viewWidth } from './const.js'
+import { canvasHeight, canvasWidth } from './const.js'
 import { canvas, ctx, getLog, setDebug } from './render.js'
 import { mapWalls } from './map.js'
 import { initSprites } from './sprite.js'
@@ -50,8 +50,8 @@ const tick = (time: number) => {
   state.frameDelta = (state.frame2 - state.frame1)
   state.frame1 = time
 
-  canvas.width = viewWidth
-  canvas.height = viewHeight
+  canvas.width = canvasWidth
+  canvas.height = canvasHeight
 
   //init game
   if (state.gameState === 0) init()

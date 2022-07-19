@@ -1,5 +1,5 @@
-import { fov, fovH, cellSize } from '../const.js'
-import { setPointSize, setColorBytes, drawPoint } from '../render.js'
+import { viewHeight, cellSize, viewWidth } from '../const.js'
+import { setColorBytes, drawPoint } from '../render.js'
 import { loseScreen } from '../textures/lose-screen.js'
 import { titleScreen } from '../textures/title-screen.js'
 import { winScreen } from '../textures/win-screen.js'
@@ -15,11 +15,9 @@ export const drawScreen = (v: number) => {
   if (v == 2) { T = winScreen }
   if (v == 3) { T = loseScreen }
   
-  setPointSize(cellSize)
-  
-  for (y = 0; y < fovH; y++) {
-    for (x = 0; x < fov; x++) {
-      let pixel = (y * fov + x) * 3
+  for (y = 0; y < viewHeight; y++) {
+    for (x = 0; x < viewWidth; x++) {
+      let pixel = (y * viewWidth + x) * 3
       let red = T[pixel + 0] * state.fade
       let green = T[pixel + 1] * state.fade
       let blue = T[pixel + 2] * state.fade
